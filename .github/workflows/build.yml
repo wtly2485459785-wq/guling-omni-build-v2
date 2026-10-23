@@ -90,6 +90,12 @@ jobs:
           cd "$PROJECT_ROOT"
           npm install
 
+      - name: Sync assets before tests
+        run: |
+          cd "$PROJECT_ROOT"
+          mkdir -p android/app/src/main/assets/public
+          cp -r www/* android/app/src/main/assets/public/
+
       - name: Run self-checks
         run: |
           cd "$PROJECT_ROOT"
@@ -126,3 +132,4 @@ jobs:
           git add "$PKG"
           git commit -m "build $PKG" || echo "nothing to commit"
           git push
+
