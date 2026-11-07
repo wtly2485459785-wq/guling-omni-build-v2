@@ -90,6 +90,11 @@ jobs:
           cd "$PROJECT_ROOT"
           npm install
 
+      - name: Install Playwright Chromium
+        run: |
+          cd "$PROJECT_ROOT"
+          npx playwright install --with-deps chromium
+
       - name: Sync assets before tests
         run: |
           cd "$PROJECT_ROOT"
@@ -97,6 +102,8 @@ jobs:
           cp -r www/* android/app/src/main/assets/public/
 
       - name: Run self-checks
+        env:
+          SMOKE_REQUIRED: '1'
         run: |
           cd "$PROJECT_ROOT"
           npm test
