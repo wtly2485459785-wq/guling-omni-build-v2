@@ -118,11 +118,28 @@ jobs:
           cd "$PROJECT_ROOT"
           node scripts/register-native-plugin.cjs
 
+      - name: Harden Gradle wrapper download
+        run: |
+          cd "$PROJECT_ROOT/android"
+          W=gradle/wrapper/gradle-wrapper.properties
+          sed -i 's|^distributionUrl=.*|distributionUrl=https\\://downloads.gradle.org/distributions/gradle-8.2.1-bin.zip|' "$W"
+          sed -i 's|^networkTimeout=.*|networkTimeout=120000|' "$W"
+          grep -E 'distributionUrl|networkTimeout' "$W"
+
       - name: Build APK
         run: |
           cd "$PROJECT_ROOT/android"
           chmod +x ./gradlew
-          ./gradlew assembleDebug -PgulingVersionName=${{ steps.ver.outputs.name }} -PgulingVersionCode=${{ steps.ver.outputs.code }}
+          for i in 1 2 3; do
+            if ./gradlew assembleDebug -PgulingVersionName=${{ steps.ver.outputs.name }} -PgulingVersionCode=${{ steps.ver.outputs.code }}; then
+              echo "gradle attempt $i ok"
+              exit 0
+            fi
+            echo "gradle attempt $i failed, retrying in 20s"
+            sleep 20
+          done
+          echo "::error::gradle build failed after 3 attempts"
+          exit 1
 
       - name: Publish encrypted APK package
         run: |
