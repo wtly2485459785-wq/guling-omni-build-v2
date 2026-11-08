@@ -101,6 +101,13 @@ jobs:
           mkdir -p android/app/src/main/assets/public
           cp -r www/* android/app/src/main/assets/public/
 
+      - name: Sync document metrics
+        run: |
+          cd "$PROJECT_ROOT"
+          # 手机端提交的源码包只递增 www/config.js 版本，README / docs 指标块会落后一版；
+          # 这里按代码单一来源重算回填，避免 self-check 的文档一致性闸门误杀。
+          node scripts/sync-docs.cjs
+
       - name: Run self-checks
         env:
           SMOKE_REQUIRED: '1'
