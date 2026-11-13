@@ -95,6 +95,13 @@ jobs:
           cd "$PROJECT_ROOT"
           npx playwright install --with-deps chromium
 
+      - name: Build bundle before metrics
+        run: |
+          cd "$PROJECT_ROOT"
+          # 手机端重建的源码包不含 www/dist/bundle.js（生成产物不进源码包），
+          # 而 sync-docs 要从 bundle 里统计运行时符号，因此先构建一次。
+          node scripts/build.js
+
       - name: Sync assets before tests
         run: |
           cd "$PROJECT_ROOT"
