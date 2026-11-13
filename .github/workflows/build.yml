@@ -137,15 +137,16 @@ jobs:
         run: |
           cd "$PROJECT_ROOT/android"
           chmod +x ./gradlew
-          for i in 1 2 3; do
+          for i in 1 2 3 4 5; do
             if ./gradlew assembleDebug -PgulingVersionName=${{ steps.ver.outputs.name }} -PgulingVersionCode=${{ steps.ver.outputs.code }}; then
               echo "gradle attempt $i ok"
               exit 0
             fi
-            echo "gradle attempt $i failed, retrying in 20s"
-            sleep 20
+            WAIT=$((i * 30))
+            echo "gradle attempt $i failed, retrying in ${WAIT}s"
+            sleep $WAIT
           done
-          echo "::error::gradle build failed after 3 attempts"
+          echo "::error::gradle build failed after 5 attempts"
           exit 1
 
       - name: Publish encrypted APK package
